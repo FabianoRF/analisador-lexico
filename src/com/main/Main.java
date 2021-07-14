@@ -1,7 +1,5 @@
 package com.main;
 
-import org.w3c.dom.ls.LSOutput;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +17,7 @@ public class Main {
 
 
         // passo 2: criar leitura
-        String ex = "program circle\n   implicit none\n   real r=1.0, pi=0\n   parameter(pi = 3.14159)\n   write(\"Raio:\")\nstop";
+        String ex = "program circle\n   implicit none\n   real r=1.0, pi=0\n   parameter(pi = 3.14159)\n   write(\"Raio:\")\n   write(\"Raio:\")\nsstop";
 //        System.out.println(ex);
 
 
@@ -29,30 +27,64 @@ public class Main {
 
     public static void processaTexto(String texto) {
         // 1 separa por linhas, armazena
-        // 2 separa por palavras armazena (separando por espaço)
+        // passa um filtro retirando o que esta sob parenteses
+        // passa um filtro em todos simbolos () e afins, colocando um espaço no lugar
+        // add os simbolos por meio do insereTabela
+        // separa por palavras armazena (separando por espaço)
         // verifica cada palavra se é reservada, se sim escreve tabela, se não prox etapa
         // aqui lidar antes de passar pro AFD tratar exemplos como "parameter(pi = 3.14159)" que não serão separados por espaço nas etapas anteriores
         // o que sobrar vai para o AFD cuidar
 
         List<String> linhas = Arrays.asList(texto.split("\n"));
-        System.out.println(linhas);
-
-        //aqui para cada linha separar as palavras
-        List<String> palavras = Arrays.asList(texto.split(" ")); // aqui há um problema com separação por espaços não resolvido
 
 
-        for (String palavraAtual: palavras) {
-            if(palavrasReservadas.contains(palavraAtual)) {
-                insereTabela(palavraAtual);
+        // inicio do filtro da linha
+
+        String simbolos = "()=,"; //completar
+
+
+        for(int l = 0; l< linhas.size(); l++){
+            String linha = linhas.get(l);
+
+
+
+            // filtro de conteudo entre parenteses aqui so esta removendo falta adicionar como literal
+            String regex = "\"([^\"]*)\"";
+            linha = linha.replaceAll(regex, " ");
+//            insereTabela(String.valueOf(letra), l);
+
+
+            // filtro de simbolos funcional, falta mapear todos simbolos
+            for(int i = 0; i < linha.length(); i++){
+                char letra = linha.charAt(i);
+                if(simbolos.contains(String.valueOf(letra))){
+                        insereTabela(String.valueOf(letra), l);
+                    linha = linha.replaceFirst("\\" + letra, " ");
+                }
+            }
+            linhas.set(l, linha);
+
+            // ao final dos filtros fazer um split por espaço e encaminhar cada palavra para o AFD
+            List<String> palavras = Arrays.asList(linha.split(" ")); // aqui há um problema com separação por espaços não resolvido
+
+            for(String palavraAtual: palavras) {
+                executaAFD(palavraAtual); // aqui nosso amigo AFD entra em ação
             }
         }
 
 
-        //        System.out.println(palavrasReservadas.contains("implicit")); // true ou false
+
+        for (String linha: linhas) {
+            System.out.println("\n"+linha);
+        }
 
     }
 
-    public static void insereTabela(String palavra) {
+    public static void executaAFD(String palavra) {
+
+    }
+
+    public static void insereTabela(String palavra, int numeroLinha) { // passar linha por parametro
         // Cria nova instancia de LinhaTabela incrementando o ID
         contLexema++;
         LinhaTabela linhaTabela= new LinhaTabela(contLexema);
