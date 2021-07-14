@@ -80,7 +80,54 @@ public class Main {
 
     }
 
-    public static void executaAFD(String palavra) {
+    public static boolean executaAFD(String palavra) {
+
+        int  i=0;
+
+        boolean flag = true, status = true;
+
+        char primeiroCaracterAlpha = palavra.charAt(0);//pega o primeiro caracter da string
+
+        int tamPalavra = palavra.length();//tamanho da string
+
+        if (Character.isAlphabetic(primeiroCaracterAlpha)){//Aqui é para Letra (Se primeira letra for Char o restante pode ser Char ou Num somente, ex valido: Var520 | ex não valido 56var (Seria o estado q0 do AFD indo para o q1)
+            status = true;
+
+            for(i=0; i<tamPalavra; i++){
+                if (Character.isAlphabetic(palavra.charAt(i)) || Character.isDigit(palavra.charAt(i))){
+                    status = true;
+                } else {
+                    status = false;
+                }
+            }
+
+        }else if(Character.isDigit(palavra.charAt(0))){ //Aqui para numeros (Seria o estado q0 do AFD indo para o q6)
+            status = true;
+
+            for (i=0 ; i<tamPalavra ; i++){
+                if (Character.isDigit(palavra.charAt(i))){//Verifica se é somente numero
+                    status = true;
+
+                }else if(Character.isAlphabetic(palavra.charAt(i))){   //Verifica a presença de letra
+                    status = false;
+
+                }else if(palavra.contains(".")){//Verifica a presença do "."
+                    if(flag){
+                        status = true;
+                        flag = false;
+
+                    }else {// Caso passe o numero de "."
+                        status = false;
+                    }
+                }
+            }
+
+        }else if (!Character.isAlphabetic(palavra.charAt(i)) && !Character.isDigit(palavra.charAt(i))){  // Aqui para os casos onde  não é uma palavra inciado com (A-Z) e (0-9)
+            System.out.println("Entrei03");
+            status = false;
+        }
+
+        return status; //Retorna o status do AFD, caso true palavra aceita\ caso false palavra rejeitada
 
     }
 
