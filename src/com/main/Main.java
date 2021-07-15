@@ -10,11 +10,12 @@ public class Main {
     public static int contLexema = 0;
     public static List<LinhaTabela> tabela = new ArrayList<>();
 
+//    public static ArrayList<LinhaTabela> tabela = new ArrayList<>();
+
     public static void main(String[] args) {
 	// write your code here
 
         populaPalavrasReservadas();
-
 
         // passo 2: criar leitura
         String ex = "program circle\n   implicit none\n   real r=1.0, pi=0\n   parameter(pi = 3.14159)\n   write(\"Raio:\")\n   write(\"Raio:\")\nsstop";
@@ -23,7 +24,15 @@ public class Main {
 
         processaTexto(ex);
 
+        LinhaTabela linhaTabela = new LinhaTabela(0 , "a", "a", "a", "a", "a", "a",0 );
+
+        insereTabela(linhaTabela, 0);
+
+        Tabela exibeTabela = new Tabela();
+        exibeTabela.exibeTabela((ArrayList) tabela);
+
     }
+
 
     public static void processaTexto(String texto) {
         // 1 separa por linhas, armazena
@@ -36,7 +45,6 @@ public class Main {
         // o que sobrar vai para o AFD cuidar
 
         List<String> linhas = Arrays.asList(texto.split("\n"));
-
 
         // inicio do filtro da linha
 
@@ -58,7 +66,7 @@ public class Main {
             for(int i = 0; i < linha.length(); i++){
                 char letra = linha.charAt(i);
                 if(simbolos.contains(String.valueOf(letra))){
-                        insereTabela(String.valueOf(letra), l);
+//                    insereTabela(String.valueOf(letra), l);
                     linha = linha.replaceFirst("\\" + letra, " ");
                 }
             }
@@ -101,6 +109,8 @@ public class Main {
                 }
             }
 
+//            if(status){ insereTabela(letra);}
+
         }else if(Character.isDigit(palavra.charAt(0))){ //Aqui para numeros (Seria o estado q0 do AFD indo para o q6)
             status = true;
 
@@ -123,7 +133,6 @@ public class Main {
             }
 
         }else if (!Character.isAlphabetic(palavra.charAt(i)) && !Character.isDigit(palavra.charAt(i))){  // Aqui para os casos onde  não é uma palavra inciado com (A-Z) e (0-9)
-            System.out.println("Entrei03");
             status = false;
         }
 
@@ -131,26 +140,30 @@ public class Main {
 
     }
 
-    public static void insereTabela(String palavra, int numeroLinha) { // passar linha por parametro
-        // Cria nova instancia de LinhaTabela incrementando o ID
-        contLexema++;
-        LinhaTabela linhaTabela= new LinhaTabela(contLexema);
-
-        // se for reservada
-        if(palavrasReservadas.contains(palavra)) {
-            linhaTabela.lexema = palavra;
-            linhaTabela.valorInicial = "-";
-            linhaTabela.escopo = "-";
-            linhaTabela.linhas = "-";
-            linhaTabela.colunas = "-";
-            linhaTabela.linha = 111; // definir um controle de linhas
-        }
-
-
-        //adiciona na estrutura de tabela principal
-        tabela.add(linhaTabela);
+    public static void insereTabela(LinhaTabela palavra, int numeroLinha){
 
     }
+
+//    public static void insereTabela(LinhaTabela palavra, int numeroLinha) { // passar linha por parametro
+//        // Cria nova instancia de LinhaTabela incrementando o ID
+//        contLexema++;
+//        LinhaTabela linhaTabela= new LinhaTabela(contLexema);
+//
+////        // se for reservada
+////        if(palavrasReservadas.contains(palavra)) {
+////            linhaTabela.lexema = palavra;
+////            linhaTabela.valorInicial = "-";
+////            linhaTabela.escopo = "-";
+////            linhaTabela.linhas = "-";
+////            linhaTabela.colunas = "-";
+////            linhaTabela.linha = 111; // definir um controle de linhas
+////        }
+//
+//
+//        //adiciona na estrutura de tabela principal
+//        tabela.add(linhaTabela);
+//
+//    }
 
     // funçoes para popular estruturas
     public static void populaPalavrasReservadas() {
