@@ -10,10 +10,7 @@ public class Main {
     public static int contLexema = 0;
     public static List<LinhaTabela> tabela = new ArrayList<>();
 
-//    public static ArrayList<LinhaTabela> tabela = new ArrayList<>();
-
     public static void main(String[] args) {
-	// write your code here
 
         populaPalavrasReservadas();
 
@@ -109,7 +106,7 @@ public class Main {
                 }
             }
 
-//            if(status){ insereTabela(letra);}
+//            if(status == true){ insereTabela(letra);} Aqui insere na tabela caso, for letras e numeros token (ID)
 
         }else if(Character.isDigit(palavra.charAt(0))){ //Aqui para numeros (Seria o estado q0 do AFD indo para o q6)
             status = true;
@@ -131,6 +128,7 @@ public class Main {
                     }
                 }
             }
+//            if(status == true){ insereTabela(numero);} Aqui insere na tabela caso, for numero token (NUM)
 
         }else if (!Character.isAlphabetic(palavra.charAt(i)) && !Character.isDigit(palavra.charAt(i))){  // Aqui para os casos onde  não é uma palavra inciado com (A-Z) e (0-9)
             status = false;
