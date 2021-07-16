@@ -1,0 +1,14 @@
+program circle
+   implicit none !incia o programa blablabla
+   real r=1.0, pi=0 !incia o programa blablabla
+   parameter(pi = 3.14159) !incia o programa blablabla
+   write("Raio:") !incia o programa blablabla
+   write("Raio:") !incia o programa blablabla
+stop
+end
+
+subroutine printArea(pi, r)
+    implicit none
+    real r, pi, calculaArea
+    write("Area = ", calculaArea(pi, r))
+end
