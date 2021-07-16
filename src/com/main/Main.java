@@ -8,104 +8,89 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-// TODO:completar simbolos e colocar liral no processa palavras
-//
+// Observações
+// O trabalho desenvolvido não possui interface
+// A entrada de código para análise é feita por meio do arquivo entrada.txt
+// Ao fim da análise a tabela com os dados é exibida pelo terminal
+// Falta: atribuição de valor inicial, escopo, tratativa para texto entre parenteses(aqui ele so é retirado da linha)
 
 
 public class Main {
     public static List<String> palavrasReservadas;
     public static List<String> linhas = new ArrayList<>();
-    public static List<LinhaTabela> listaLinhaTabela = new ArrayList<>();
-    public static String simbolos = "()=,+-"; //completar
-    public static int contId = 0;
-
-    public static void leitor(){
-        String nomeArq = "entrada.txt";
-        String texto = "";
-        try {
-            FileReader arq = new FileReader(nomeArq);
-            BufferedReader lerArq = new BufferedReader(arq);
-            String linha = "";
-
-            while (true) {
-                if (linha != null) {
-                    linhas.add(linha);
-                } else
-                    break;
-                linha = lerArq.readLine();
-            }
-            lerArq.close();
-            System.out.println("\nLeitura concluída!\n");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            System.out.println("Erro na leitura do arquivo!");
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Erro na leitura do arquivo!");
-        }
-    }
+    public static List<LinhaTabela> tabela = new ArrayList<>();
+    public static String simbolos = "()=,+-";
+    public static int contId = 1;
 
     public static void main(String[] args) {
         populaPalavrasReservadas();
         leitor();
-
         processaTexto();
-
-        Tabela tabela = new Tabela();
-        tabela.exibeTabela((ArrayList) listaLinhaTabela);
+        exibeTabela();
     }
-
 
     public static void processaTexto() {
         // separa por linhas, armazena
         // passa um filtro retirando comentários
-        // passa um filtro retirando o que esta sob parenteses
+        // passa um filtro retirando o que esta sob aspas
         // passa um filtro em todos simbolos () e afins, colocando um espaço no lugar
         // add os simbolos por meio do insereTabela
         // separa por palavras armazena (separando por espaço)
         // verifica cada palavra se é reservada, se sim escreve tabela, se não prox etapa
-        // aqui lidar antes de passar pro AFD tratar exemplos como "parameter(pi = 3.14159)" que não serão separados por espaço nas etapas anteriores
-        // o que sobrar vai para o AFD cuidar
 
-        // inicio do filtro da linha
+        boolean ePalavraReservada = true;
+
+        // inicio dos filtros
         for(int l = 0; l< linhas.size(); l++){
             String linha = linhas.get(l);
 
             // filtro remove comentário
             String regex = "!.*";
             linha = linha.replaceAll(regex, " ");
+            LinhaTabela linhaTabela;
 
             // TODO: adicionar na tabela quando identificado um literal
-            // filtro de conteudo entre parenteses aqui so esta removendo falta adicionar como literal
+            // filtro de conteudo entre aspas aqui so esta removendo falta adicionar como literal
             regex = "\"([^\"]*)\"";
             linha = linha.replaceAll(regex, " ");
-            LinhaTabela linhaTabela = new LinhaTabela(contId, String.valueOf(linha), "SIMBOLO", "-", "-", "-", "-", l);
-//            insereTabela(linhaTabela, l);
-
 
             // filtro de simbolos
             // Aqui é verificado se os simbolos estão contidos na constante simbolo, se sim são adicionados na tabela
             for(int i = 0; i < linha.length(); i++){
                 char letra = linha.charAt(i);
                 if(simbolos.contains(String.valueOf(letra))){
-                    linhaTabela = new LinhaTabela(contId, String.valueOf(letra), "SIMBOLO", "-", "-", "-", "-", i);
-                    insereTabela(linhaTabela, i);
+                    linhaTabela = new LinhaTabela(contId, String.valueOf(letra), "SIMBOLO", "-", "-", "-", "-", l);
+                    insereTabela(linhaTabela);
                     linha = linha.replaceFirst("\\" + letra, " ");
                 }
             }
             // adiciona na lista de linhas
             linhas.set(l, linha);
 
-            // ao final dos filtros é feito um split por espaço e as palavras são encaminhadas para o AFD
+            // ao final dos filtros é feito um split por espaço e as palavras são encaminhadas para o AFD ou adicionadas como palavras reservadas
             List<String> palavras = Arrays.asList(linha.split(" ")); // aqui há um problema com separação por espaços não resolvido
             for(String palavraAtual: palavras) {
-                executaAFD(palavraAtual, l); // chama o AFD
+                ePalavraReservada = verificaPalavraReservada(palavraAtual, l);
+                if(!ePalavraReservada) {
+                    executaAFD(palavraAtual, l); // chama o AFD
+                }
             }
         }
     }
 
+    // apos o filtro e antes do AFD é feito a verificação se a palavra é reservada
+    public static boolean verificaPalavraReservada(String palavra, int linha) {
+//         se for reservada
+        if(palavrasReservadas.contains(palavra)) {
+            LinhaTabela linhaTabela= new LinhaTabela(contId, palavra, "PALAVRA_RESERVADA", "-", "-", "-", "-", linha);
+            insereTabela(linhaTabela);
+            return true;
+        }
+        return false;
+    }
+
     public static void executaAFD(String palavra, int nLinha) {
-        // verifica se não foi mandado um espaço vazio
+        // verifica um espaço vazio
         if (!palavra.contains(" ") && !palavra.isEmpty()) {
             int  i=0;
             boolean flag = true, status = true;
@@ -125,8 +110,8 @@ public class Main {
                 }
 
                 if(status == true){
-                    linhaTabela = new LinhaTabela(contId, palavra, "ID", "-", "-", "-", "-", i);
-                    insereTabela(linhaTabela, nLinha);
+                    linhaTabela = new LinhaTabela(contId, palavra, "ID", "-", "-", "-", "-", nLinha);
+                    insereTabela(linhaTabela);
                 }
             }else if(Character.isDigit(palavra.charAt(0))){ //Aqui para numeros (Seria o estado q0 do AFD indo para o q6)
                 status = true;
@@ -149,48 +134,26 @@ public class Main {
                     }
                 }
                 if(status == true){
-                    linhaTabela = new LinhaTabela(contId, palavra, "NUM", "-", "-", "-", "-", i);
-                    insereTabela(linhaTabela, nLinha);
+                    linhaTabela = new LinhaTabela(contId, palavra, "NUM", palavra, "-", "-", "-", nLinha);
+                    insereTabela(linhaTabela);
                 }
 
             } else if (!Character.isAlphabetic(palavra.charAt(i)) && !Character.isDigit(palavra.charAt(i))){  // Aqui para os casos onde  não é uma palavra inciado com (A-Z) e (0-9)
-                linhaTabela = new LinhaTabela(contId, palavra, "ERRO", "-", "-", "-", "-", i);
-                insereTabela(linhaTabela, nLinha);
+                linhaTabela = new LinhaTabela(contId, palavra, "ERRO", "-", "-", "-", "-", nLinha);
+                insereTabela(linhaTabela);
             }
         }
     }
 
-    public static void insereTabela(LinhaTabela linhaTabela, int numeroLinha){
+    public static void insereTabela(LinhaTabela linhaTabela){
         // incremental do id da tabela
         contId++;
-        listaLinhaTabela.add(linhaTabela);
+        tabela.add(linhaTabela);
     }
 
-//    public static void insereTabela(LinhaTabela palavra, int numeroLinha) { // passar linha por parametro
-//        // Cria nova instancia de LinhaTabela incrementando o ID
-//        contLexema++;
-//        LinhaTabela linhaTabela= new LinhaTabela(contLexema);
-//
-////        // se for reservada
-////        if(palavrasReservadas.contains(palavra)) {
-////            linhaTabela.lexema = palavra;
-////            linhaTabela.valorInicial = "-";
-////            linhaTabela.escopo = "-";
-////            linhaTabela.linhas = "-";
-////            linhaTabela.colunas = "-";
-////            linhaTabela.linha = 111; // definir um controle de linhas
-////        }
-//
-//
-//        //adiciona na estrutura de tabela principal
-//        tabela.add(linhaTabela);
-//
-//    }
-
-    // funçoes para popular estruturas
+    // função para popular estruturas
     public static void populaPalavrasReservadas() {
-        palavrasReservadas = new ArrayList<String>();
-
+        palavrasReservadas = new ArrayList<>();
         palavrasReservadas.add("program");
         palavrasReservadas.add("implicit");
         palavrasReservadas.add("none");
@@ -233,16 +196,54 @@ public class Main {
         palavrasReservadas.add("**");
         palavrasReservadas.add("(");
         palavrasReservadas.add(")");
-//      tratar o "" de alguma forma diferente
         palavrasReservadas.add("//");
         palavrasReservadas.add("!");
         palavrasReservadas.add(".");
         palavrasReservadas.add(",");
-
     }
 
-    // criar func para popular AFD
-    public static void populaAFD() {
+    // Função imprime tabela no terminal
+    public static void exibeTabela(){//Função utilizada para exibir tabela pelo terminal
+        int tamTabela = tabela.size();
+        int i=0;
 
+        System.out.println("-------------TABELA-------------\n");
+        for(i=0; i<tamTabela; i++){
+            System.out.print("\t[ID: "+tabela.get(i).getId()+" ]");
+            System.out.print("\t[LEXEMA: "+tabela.get(i).getLexema()+" ]");
+            System.out.print("\t[TOKEN: "+tabela.get(i).getToken()+" ]");
+            System.out.print("\t[VALOR INICIAL: "+tabela.get(i).getValorInicial()+" ]");
+            System.out.print("\t[ESCOPO: "+tabela.get(i).getEscopo()+" ]");
+            System.out.print("\t[LINHAS: "+tabela.get(i).getLinhas()+" ]");
+            System.out.print("\t[COLUNAS: "+tabela.get(i).getColunas()+" ]");
+            System.out.print("\t[LINHA: "+tabela.get(i).getLinha()+" ]");
+            System.out.print("\n___________________________________________________________________________________________________________________________________\n");
+        }
+    }
+
+    // leitor de arquivo que adiciona cada linha em uma lista
+    public static void leitor(){
+        String nomeArq = "entrada.txt";
+        try {
+            FileReader arq = new FileReader(nomeArq);
+            BufferedReader lerArq = new BufferedReader(arq);
+            String linha = "";
+
+            while (true) {
+                if (linha != null) {
+                    linhas.add(linha);
+                } else
+                    break;
+                linha = lerArq.readLine();
+            }
+            lerArq.close();
+            System.out.println("\nLeitura concluída!\n");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            System.out.println("Erro na leitura do arquivo!");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Erro na leitura do arquivo!");
+        }
     }
 }

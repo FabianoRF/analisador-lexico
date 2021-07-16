@@ -1,5 +1,7 @@
 package com.main;
 
+
+// Classe que representa a estrutura da tabela de lexemas
 public class LinhaTabela {
 
     public int id;
